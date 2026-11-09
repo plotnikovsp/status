@@ -1,0 +1,40 @@
+# Отчёт о доступности за прошлый месяц — 1-го числа: reports/ГГГГ-ММ.md и сообщение в Telegram.
+# Коммит раз в месяц заодно держит репозиторий активным: в публичном репозитории без изменений 60 дней
+# GitHub сам выключает расписание.
+name: Monthly report
+
+on:
+  schedule:
+    - cron: '17 6 1 * *'  # 1-е число, 09:17 по Москве
+  workflow_dispatch:
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: state-report-${{ github.run_id }}
+          restore-keys: state-
+      - name: Report
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+        run: python3 check.py report
+      - name: Commit
+        run: |
+          git add reports
+          git diff --cached --quiet && exit 0
+          git -c user.name="status-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Отчёт о доступности за прошлый месяц"
+          git push

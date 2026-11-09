@@ -1,0 +1,54 @@
+# Внешний сторож сайтов HOME-PC — раз в 10 минут с серверов GitHub (check.py, адреса — targets.txt).
+# Две неудачи подряд — сообщение в Telegram и упавший запуск (письмо от GitHub); снова доступны — сообщение.
+name: Uptime
+
+on:
+  schedule:
+    - cron: '3-59/10 * * * *'  # не в начале часа: в :00 расписание GitHub опаздывает сильнее всего
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check — проверить; setup — прислать id тем, кто нажал «Старт» у бота; test — пробное сообщение'
+        default: check
+        type: choice
+        options: [check, setup, test]
+
+concurrency:
+  group: uptime  # запуски по очереди: состояние (две неудачи подряд) читает и пишет один запуск
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write  # удалять старые копии состояния в кэше
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: state-${{ github.run_id }}
+          restore-keys: state-
+      - name: Check
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+        run: python3 check.py "${{ inputs.mode || 'check' }}"
+      - uses: actions/cache/save@v4
+        if: always() && (inputs.mode || 'check') == 'check'
+        with:
+          path: state
+          key: state-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Prune old state
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh cache list --key state- --sort created_at --order desc --limit 100 --json id --jq '.[10:][].id' \
+            | xargs -r -n1 gh cache delete || true

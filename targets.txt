@@ -1,0 +1,11 @@
+# Что проверяет сторож: адрес, ожидаемый код ответа и (необязательно) слово, которое должно быть на странице.
+# Сайт, который ещё не установлен на сервер, не добавлять: иначе тревога будет всегда.
+https://chat-test.ru/                200
+https://chat-test.ru/v1/models       401
+https://plotnikovsp.ru/              200  Плотников
+https://eveagent.ru/                 200
+https://odnazayavka.ru/              200  Одна заявка
+https://bionics.su/api/health        200
+https://institute.bionics.su/        200
+https://conference.bionics.su/       200
+# https://pelengradar.ru/            200   — включить после установки сайта на сервер

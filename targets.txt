@@ -8,4 +8,4 @@ https://odnazayavka.ru/              200  Одна заявка
 https://bionics.su/api/health        200
 https://institute.bionics.su/        200
 https://conference.bionics.su/       200
-# https://pelengradar.ru/            200   — включить после установки сайта на сервер
+https://pelengradar.ru/              200  Пеленг

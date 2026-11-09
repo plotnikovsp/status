@@ -1,0 +1,10 @@
+# Обновления GitHub Actions — раз в месяц одним PR (сливает владелец после зелёного запуска).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']

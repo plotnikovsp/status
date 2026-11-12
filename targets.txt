@@ -9,3 +9,4 @@ https://bionics.su/api/health        200
 https://institute.bionics.su/        200
 https://conference.bionics.su/       200
 https://pelengradar.ru/              200  Пеленг
+https://evgrafai.ru/                 200  Евграф
